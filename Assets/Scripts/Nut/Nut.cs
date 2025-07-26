@@ -1,26 +1,69 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 public class Nut : MonoBehaviour
 {
-	public Color color;
+	public PipeColor colorType;                 // Enum để chọn loại màu
+	public PipeColorData colorData;             // ScriptableObject chứa ánh xạ enum -> Color
+	public Color color;                         // Màu thực tế lấy từ colorData, dùng trong logic
 
 	private Renderer render;
 	private Animator animator;
+
+	public bool isHidden;
+	public GameObject hiddenObj;
+
 	private void Awake()
 	{
 		render = GetComponent<Renderer>();
 		animator = GetComponent<Animator>();
-		ChangeColor(color);
-		
+
+		// Gán color dựa trên enum & ScriptableObject
+		color = colorData.GetColor(colorType);
+
+		UpdateState();
 	}
-	public void ChangeColor(Color _color)
+
+#if UNITY_EDITOR
+
+	// Tự cập nhật màu mỗi khi chỉnh enum trong Editor
+	private void OnValidate()
 	{
-		render.material.color = _color;
+		if (colorData != null)
+		{
+			color = colorData.GetColor(colorType);
+		}
 	}
-	public void GotoPosition(Vector3 position)
+
+#endif
+
+	public void UpdateState()
 	{
-		StartCoroutine(MoveSmooth(position));
+		if (isHidden)
+		{
+			render.material.color = Color.black;
+			hiddenObj.SetActive(true);
+		}
+		else
+		{
+			hiddenObj.SetActive(false);
+			render.material.color = color;
+		}
+	}
+
+	public void ChangeColor(PipeColor newColorType)
+	{
+		colorType = newColorType;
+		color = colorData.GetColor(colorType);
+		render.material.color = color;
+	}
+
+	public void GotoPosition(Vector3 position, bool haveAnim)
+	{
+		if (haveAnim)
+			StartCoroutine(MoveSmooth(position));
+		else
+			transform.localPosition = position;
 	}
 
 	public IEnumerator MoveSmooth(Vector3 targetPosition)
@@ -28,8 +71,13 @@ public class Nut : MonoBehaviour
 		animator.SetBool("rotate", true);
 
 		Vector3 start = transform.localPosition;
+		Vector3 direction = targetPosition - start;
+		float distance = direction.magnitude;
+
+		float speed = 0.5f;
+		float duration = distance / speed;
+
 		float elapsed = 0f;
-		float duration = Vector3.Distance(start, targetPosition) / 0.1f;
 
 		while (elapsed < duration)
 		{
@@ -39,8 +87,7 @@ public class Nut : MonoBehaviour
 		}
 
 		transform.localPosition = targetPosition;
+		transform.localRotation = Quaternion.identity;
 		animator.SetBool("rotate", false);
 	}
-
 }
-

@@ -1,16 +1,14 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class SoundManager : MonoBehaviour
 {
-	public static SoundManager instance;
+	public static SoundManager Instance;
 
-	public AudioEntry[] sfx;
-	public AudioEntry[] background;
-
-	private Dictionary<string, AudioClip> sfxDict;
-	private Dictionary<string, AudioClip> backgroundDict;
+	public List<AudioEntry> sfxList;
+	public List<AudioEntry> backgroundList;
 
 	private AudioSource sfxSource;
 	private AudioSource bgmSource;
@@ -18,73 +16,131 @@ public class SoundManager : MonoBehaviour
 	[SerializeField] private Slider sfxSlider;
 	[SerializeField] private Slider bgmSlider;
 
+	private int currentBGMIndex = 0;
+	private Coroutine bgmLoopCoroutine;
+
 	private void Awake()
 	{
-		if (instance == null)
-			instance = this;
+		if (Instance == null)
+			Instance = this;
 		else
 		{
 			Destroy(gameObject);
 			return;
 		}
-
 		DontDestroyOnLoad(gameObject);
 
 		sfxSource = transform.Find("sfx").GetComponent<AudioSource>();
 		bgmSource = transform.Find("background").GetComponent<AudioSource>();
 
-		sfxDict = new Dictionary<string, AudioClip>();
-		foreach (var entry in sfx)
-		{
-			sfxDict[entry.name] = entry.clip;
-		}
+		if (sfxSlider != null)
+			sfxSlider.onValueChanged.AddListener(SetSFXVolume);
 
-		backgroundDict = new Dictionary<string, AudioClip>();
-		foreach (var entry in background)
-		{
-			backgroundDict[entry.name] = entry.clip;
-		}
-		sfxSlider.value = sfxSource.volume;
-		bgmSlider.value = bgmSource.volume;
-
-		sfxSlider.onValueChanged.AddListener(SetSFXVolume);
-		bgmSlider.onValueChanged.AddListener(SetBGMVolume);
+		if (bgmSlider != null)
+			bgmSlider.onValueChanged.AddListener(SetBGMVolume);
 	}
-	private void SetSFXVolume(float value)
+
+	private void Start()
+	{
+		float savedSFX = PlayerPrefs.GetFloat("SFXVolume", 1f);
+		float savedBGM = PlayerPrefs.GetFloat("BGMVolume", 1f);
+
+		if (sfxSlider != null) sfxSlider.value = savedSFX;
+		if (bgmSlider != null) bgmSlider.value = savedBGM;
+
+		SetSFXVolume(savedSFX);
+		SetBGMVolume(savedBGM);
+
+		StartBGMSequence();
+	}
+
+	public void SetSFXVolume(float value)
 	{
 		sfxSource.volume = value;
+		PlayerPrefs.SetFloat("SFXVolume", value);
+		PlayerPrefs.Save();
 	}
 
-	private void SetBGMVolume(float value)
+	public void SetBGMVolume(float value)
 	{
 		bgmSource.volume = value;
+		PlayerPrefs.SetFloat("BGMVolume", value);
+		PlayerPrefs.Save();
 	}
+
+	public float GetSFXVolume() => sfxSource.volume;
+
+	public float GetBgmVolume() => bgmSource.volume;
+
 	public void PlaySFX(string name)
 	{
-		if (sfxDict.TryGetValue(name, out AudioClip clip))
+		AudioEntry entry = sfxList.Find(x => x.name == name);
+		if (entry != null && entry.clip != null)
 		{
-			sfxSource.PlayOneShot(clip);
+			sfxSource.PlayOneShot(entry.clip);
 		}
 		else
 		{
-			Debug.LogWarning($"SFX clip '{name}' not found!");
+			Debug.LogWarning($"SFX '{name}' not found!");
 		}
 	}
 
 	public void ChangeSoundBackground(int index)
 	{
-		if (index >= 0 && index < background.Length)
+		if (index >= 0 && index < backgroundList.Count)
 		{
-			bgmSource.clip = background[index].clip;
-			bgmSource.loop = true;
-			bgmSource.loop = true;
-			bgmSource.Play();
+			currentBGMIndex = index;
+			StartBGMSequence();
+		}
+		else
+		{
+			Debug.LogWarning("Invalid background music index");
 		}
 	}
 
-	// Shortcut functions
-	public void PointSfx() => PlaySFX("point");
-	public void HitSfx() => PlaySFX("hit");
-	public void DeadSfx() => PlaySFX("die");
-	public void Wing() => PlaySFX("wing");
+	public void StartBGMSequence()
+	{
+		if (bgmLoopCoroutine != null)
+			StopCoroutine(bgmLoopCoroutine);
+
+		bgmLoopCoroutine = StartCoroutine(PlayBackgroundMusicSequence());
+	}
+
+	private IEnumerator PlayBackgroundMusicSequence()
+	{
+		while (true)
+		{
+			if (backgroundList.Count == 0)
+				yield break;
+
+			AudioClip clip = backgroundList[currentBGMIndex].clip;
+
+			if (clip != null)
+			{
+				bgmSource.clip = clip;
+				bgmSource.Play();
+				yield return new WaitForSeconds(clip.length);
+			}
+			else
+			{
+				Debug.LogWarning("Clip is null at index: " + currentBGMIndex);
+				yield return new WaitForSeconds(1f);
+			}
+
+			currentBGMIndex = (currentBGMIndex + 1) % backgroundList.Count;
+		}
+	}
+
+	// Shortcuts
+	public void ClickSFX() => PlaySFX("click");
+
+	public void PushSFX() => PlaySFX("push");
+
+	public void PopSFX() => PlaySFX("pop");
+
+	public void WinSFX() => PlaySFX("win");
+
+	public void LoseSFX() => PlaySFX("lose");
+
+	public void VictorySFX() => PlaySFX("victory");
 }

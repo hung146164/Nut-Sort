@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d91979a2499c0924984b2199f3fb07c6, type: 3}
+  m_Name: NutColors
+  m_EditorClassIdentifier: 
+  colorMappings:
+  - colorType: 0
+    colorValue: {r: 1, g: 0, b: 0, a: 1}
+  - colorType: 2
+    colorValue: {r: 0.2566619, g: 1, b: 0, a: 1}
+  - colorType: 3
+    colorValue: {r: 0.9844358, g: 1, b: 0, a: 1}
+  - colorType: 5
+    colorValue: {r: 1, g: 0.5016111, b: 0, a: 1}
+  - colorType: 1
+    colorValue: {r: 0, g: 0.35716462, b: 1, a: 1}
+  - colorType: 4
+    colorValue: {r: 0.59142494, g: 0, b: 1, a: 1}
+  - colorType: 5
+    colorValue: {r: 1, g: 0.5269256, b: 0, a: 1}
+  - colorType: 6
+    colorValue: {r: 0.5320754, g: 0.5320754, b: 0.5320754, a: 1}
+  - colorType: 7
+    colorValue: {r: 1, g: 1, b: 1, a: 1}
+  - colorType: 8
+    colorValue: {r: 0, g: 1, b: 0.9249792, a: 1}
+  - colorType: 9
+    colorValue: {r: 0.554717, g: 0.3159784, b: 0.21246703, a: 1}
