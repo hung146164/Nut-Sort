@@ -16,7 +16,7 @@ namespace GoogleMobileAds.Sample
 
 		// These ad units are configured to always serve test ads.
 #if UNITY_ANDROID
-		private const string _adUnitId = "ca-app-pub-3940256099942544/6300978111";
+		private const string _adUnitId = "ca-app-pub-5051664075628515/8712947500";
 #elif UNITY_IPHONE
         private const string _adUnitId = "ca-app-pub-3940256099942544/2934735716";
 #else
@@ -69,6 +69,7 @@ namespace GoogleMobileAds.Sample
 			// Send the request to load the ad.
 			Debug.Log("Loading banner ad.");
 			_bannerView.LoadAd(adRequest);
+			ShowAd();
 		}
 
 		/// <summary>

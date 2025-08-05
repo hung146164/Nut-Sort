@@ -6,12 +6,14 @@ public class RewardedAdsManager : MonoBehaviour
 	private RewardedAd rewardedAd;
 
 #if UNITY_ANDROID
-	private string adUnitId = "ca-app-pub-3940256099942544/5224354917"; // Test
+	private string adUnitId = "ca-app-pub-5051664075628515/3628474927";
 #elif UNITY_IPHONE
     private string adUnitId = "ca-app-pub-3940256099942544/1712485313";
 #else
     private string adUnitId = "unused";
 #endif
+
+	[SerializeField] GameObject adswarning;
 
 	private void Start()
 	{
@@ -71,7 +73,8 @@ public class RewardedAdsManager : MonoBehaviour
 		}
 		else
 		{
-			Debug.Log("Rewarded ad not ready");
+			adswarning.SetActive(true);
+			//Debug.Log("Rewarded ad not ready");
 		}
 	}
 
