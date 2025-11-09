@@ -1,6 +1,4 @@
-#Appota test
 
-#Dead line: 18pm/27/07/2025
 
 Download: https://apkpure.com/p/com.hung.sortnut
 
